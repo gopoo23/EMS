@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+
+  <body oncontextmenu="return false">
+    <div class="container">
+      <form id="empForm" method="post">
+        <input
+          type="text"
+          id="empName"
+          name="empName"
+          placeholder="Enter the Name of the employee to Fetch"
+          class="form-control"
+        />
+        <p></p>
+        <input
+          type="button"
+          class="btn btn-primary"
+          value="Fetch Record"
+          onclick="RetrieveRequest();"
+        />
+      </form>
+    </div>
+
+    <script>
+      function validateAndGetFormData() {
+        var empNameInput = $("#empName").val();
+        if (empNameInput === "") {
+          alert("Employee Name is a required");
+          $("#empName").focus();
+          return "";
+        }
+        var jsonStrObj = {
+          empName: empNameInput,
+        };
+        return JSON.stringify(jsonStrObj);
+      }
+
+      function resetForm() {
+        $("#empName").val("");
+        $("#empName").focus();
+      }
+
+      function executeCommand(getString, getUrl, getNextUrl) {
+        var url = getUrl + getNextUrl;
+        var jsonObj;
+        $.post(url, getString, function (result) {
+          jsonObj = JSON.parse(result);
+        }).fail(function (result) {
+          var dataJsonObj = result.responseText;
+          jsonObj = JSON.parse(dataJsonObj);
+        });
+        return jsonObj;
+      }
+
+      function GetRequest(token, dbname, relationName, jsonObjStr) {
+        var value1 =
+          "{\n" +
+          '"token" : "' +
+          token +
+          '",\n' +
+          '"cmd" : "GET",\n' +
+          '"dbName": "' +
+          dbname +
+          '",\n' +
+          '"rel" : "' +
+          relationName +
+          '",\n' +
+          '"jsonStr":\n' +
+          jsonObjStr +
+          "\n" +
+          "}";
+        return value1;
+      }
+
+      function RetrieveRequest() {
+        var jsonStr = validateAndGetFormData();
+        if (jsonStr === "") {
+          return;
+        }
+        var getReqStr = GetRequest(
+          "90939334|-31949287087837807|90939498",
+          "New",
+          "Data",
+          jsonStr
+        );
+        alert(getReqStr);
+        jQuery.ajaxSetup({ async: false });
+        var getResult = executeCommand(
+          getReqStr,
+          "http://api.login2explore.com:5577",
+          "/api/irl"
+        );
+        alert(JSON.stringify(getResult));
+        jQuery.ajaxSetup({ async: true });
+        resetForm();
+      }
+    </script>
+  </body>
+</html>

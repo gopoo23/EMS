@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+    <script src="http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+
+  <body oncontextmenu="return false">
+    <div class="container">
+      <form id="empForm" method="post">
+        <div class="form-group">
+          <span
+            ><label for="empId">Employee ID:</label>
+            <label id="empIdMsg"> </label
+          ></span>
+          <input
+            type="text"
+            class="form-control"
+            name="empId"
+            id="empId"
+            placeholder="Enter Employee ID"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="empName">Employee Name:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="empName"
+            placeholder="Enter name to update"
+            name="empName"
+          />
+        </div>
+        <div class="form-group">
+          <label for="empEmail">Email:</label>
+          <input
+            type="email"
+            class="form-control"
+            id="empEmail"
+            placeholder="Enter email to update"
+            name="empEmail"
+          />
+        </div>
+        <input
+          type="button"
+          class="btn btn-primary"
+          id="empSave"
+          value="Save"
+          onclick="updateRecord();"
+        />
+      </form>
+    </div>
+    <script>
+      function validateAndGetFormData() {
+        var empIdInput = $("#empId").val();
+        if (empIdInput === "") {
+          alert("Employee ID is a required");
+          $("#empId").focus();
+          return "";
+        }
+        var empNameInput = $("#empName").val();
+        var empEmailInput = $("#empEmail").val();
+
+        if (empNameInput === "" && empEmailInput === "") {
+          alert("Enter email or name");
+          $("#empId").focus();
+          return "";
+        }
+        var jsonStrObj = {
+          empId: empIdInput,
+          empName: empNameInput,
+          empEmail: empEmailInput,
+        };
+        return JSON.stringify(jsonStrObj);
+      }
+
+      function executeCommand(getString, getUrl, getNextUrl) {
+        var url = getUrl + getNextUrl;
+        var jsonObj;
+        $.post(url, getString, function (result) {
+          jsonObj = JSON.parse(result);
+        }).fail(function (result) {
+          var dataJsonObj = result.responseText;
+          jsonObj = JSON.parse(dataJsonObj);
+        });
+        return jsonObj;
+      }
+      function UpdateRequest(token, jsonObj, dbName, relName, reqId) {
+        var req =
+          "{\n" +
+          '"token" : "' +
+          token +
+          '",' +
+          '"dbName": "' +
+          dbName +
+          '",\n' +
+          '"cmd" : "UPDATE",\n' +
+          '"rel" : "' +
+          relName +
+          '",\n' +
+          '"jsonStr":{ "' +
+          reqId +
+          '":\n' +
+          jsonObj +
+          "\n" +
+          "}}";
+        return req;
+      }
+
+      function updateRecord() {
+        var jsonStr = validateAndGetFormData();
+        if (jsonStr === "") {
+          return;
+        }
+
+        var RemoveVar = UpdateRequest(
+          "90939334|-31949287087837807|90939498",
+          jsonStr,
+          "New",
+          "Data",
+          parseInt(document.getElementById("empId").value)
+        );
+        alert(RemoveVar);
+        jQuery.ajaxSetup({ async: false });
+        var getResult = executeCommand(
+          RemoveVar,
+          "http://api.login2explore.com:5577",
+          "/api/iml"
+        );
+        alert(JSON.stringify(getResult));
+        jQuery.ajaxSetup({ async: true });
+        resetForm();
+      }
+    </script>
+  </body>
+</html>

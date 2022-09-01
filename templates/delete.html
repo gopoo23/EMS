@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+
+  <body oncontextmenu="return false">
+    <div class="container">
+      <form id="empForm" method="post">
+        <input
+          type="text"
+          id="index"
+          name="index"
+          placeholder="Enter employee index to remove"
+          class="form-control"
+        />
+        <p></p>
+        <input
+          type="button"
+          class="btn btn-primary"
+          id="delbtn"
+          value="Delete record"
+          onclick="DeleteRequest();"
+        />
+      </form>
+    </div>
+
+    <script>
+      function validateAndGetFormData() {
+        var indVar = $("#index").val();
+        if (indVar === "") {
+          alert("Index is a required Value");
+          $("#index").focus();
+          return "";
+        }
+        var jsonStrObj = {
+          index: index,
+        };
+        return JSON.stringify(jsonStrObj);
+      }
+
+      function resetForm() {
+        $("#index").val("");
+        $("#index").focus();
+      }
+
+      function GetRemove(token, dbName, relName, reqId) {
+        var req =
+          "{\n" +
+          '"token" : "' +
+          token +
+          '",\n' +
+          '"cmd" : "REMOVE",\n' +
+          '"dbName": "' +
+          dbName +
+          '",\n"rel" : "' +
+          relName +
+          '",\n' +
+          '"record":' +
+          reqId +
+          ",\n" +
+          '"jsonStr": \{}' +
+          "\n" +
+          "}";
+        return req;
+      }
+      function executeCommand(getString, getUrl, getNextUrl) {
+        var url = getUrl + getNextUrl;
+        var jsonObj;
+        $.post(url, getString, function (result) {
+          jsonObj = JSON.parse(result);
+        }).fail(function (result) {
+          var dataJsonObj = result.responseText;
+          jsonObj = JSON.parse(dataJsonObj);
+        });
+        return jsonObj;
+      }
+
+      function DeleteRequest() {
+        var jsonStr = validateAndGetFormData();
+        if (jsonStr === "") {
+          return;
+        }
+
+        var RemoveVar = GetRemove(
+          "90939334|-31949287087837807|90939498",
+          "New",
+          "Data",
+          parseInt(document.getElementById("index").value)
+        );
+        alert(RemoveVar);
+        jQuery.ajaxSetup({ async: false });
+        var getResult = executeCommand(
+          RemoveVar,
+          "http://api.login2explore.com:5577",
+          "/api/iml"
+        );
+        alert(JSON.stringify(getResult));
+        jQuery.ajaxSetup({ async: true });
+        resetForm();
+      }
+    </script>
+  </body>
+</html>
